@@ -36,7 +36,11 @@ func Parse(s string) ([]Service, error) {
 		var svc Service
 		params := strings.Split(svcString, ";")
 		for _, kv := range params {
-			tok := strings.SplitN(strings.TrimSpace(kv), "=", 2)
+			rawKV := strings.TrimSpace(kv)
+			if rawKV == "" {
+				break
+			}
+			tok := strings.SplitN(rawKV, "=", 2)
 			if len(tok) != 2 {
 				return nil, fmt.Errorf("invalid parameter: %s", kv)
 			}
@@ -74,8 +78,8 @@ func Parse(s string) ([]Service, error) {
 				svc.AltAuthority.Host = addr[0]
 				svc.AltAuthority.Port = addr[1]
 			}
-			ret = append(ret, svc)
 		}
+		ret = append(ret, svc)
 	}
 	return ret, nil
 }
