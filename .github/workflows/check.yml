@@ -1,0 +1,34 @@
+name: check
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    paths:
+      - "**.go"
+      - ".github/workflows/check.yml"
+      - "go.mod"
+      - "go.sum"
+      - "testdata/**"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Code style validation
+        run: |
+          make lint
+
+      - name: Install Dependencies via go.mod
+        run: go mod download
+
+      - name: Unit test
+        run: make test
