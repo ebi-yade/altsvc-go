@@ -60,7 +60,7 @@ func Parse(s string) ([]Service, error) {
 				// This specification only defines a single value for "persist".
 				// Clients MUST ignore "persist" parameters with values other than "1".
 				// For information, see https://datatracker.ietf.org/doc/html/rfc7838#section-3.1
-				if persist == 1 {
+				if persist != 1 {
 					continue
 				}
 				svc.Persist = 1
