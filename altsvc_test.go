@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// TODO: add further cases of both success and errors
 func TestParse(t *testing.T) {
 	tTable := []struct {
 		input    string
