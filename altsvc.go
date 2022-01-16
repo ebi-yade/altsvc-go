@@ -32,16 +32,17 @@ func Parse(s string) ([]Service, error) {
 	}
 
 	services := strings.Split(s, ",")
-	for _, svcString := range services {
+	for i, svcString := range services {
 		var svc Service
 		params := strings.Split(svcString, ";")
-		for _, kv := range params {
+		for j, kv := range params {
 			rawKV := strings.TrimSpace(kv)
-			if rawKV == "" {
-				break
-			}
 			tok := strings.SplitN(rawKV, "=", 2)
 			if len(tok) != 2 {
+				if rawKV == "" && j > 0 && j == len(params)-1 && i == len(services)-1 {
+					// Note: assume the only trailing ";" is legal if the ";" does not have a valid parameter at the back
+					break
+				}
 				return nil, fmt.Errorf("invalid parameter: %s", kv)
 			}
 			switch tok[0] {

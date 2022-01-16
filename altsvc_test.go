@@ -2,6 +2,7 @@ package altsvc
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -52,6 +53,28 @@ func TestParse(t *testing.T) {
 		}
 		if !reflect.DeepEqual(tCase.expected, svc) {
 			t.Errorf(`expected "%v" but the result was %v\n`, tCase.expected, svc)
+		}
+	}
+}
+
+func TestParse_Errors(t *testing.T) {
+	tTable := []struct {
+		input     string
+		errPrefix string
+	}{
+		{
+			input:     ``,
+			errPrefix: `invalid parameter`,
+		},
+	}
+
+	for _, tCase := range tTable {
+		svc, err := Parse(tCase.input)
+		if err == nil {
+			t.Errorf("expected to raise an error, but succeeded.\nreturned value: %v", svc)
+		}
+		if !strings.HasPrefix(err.Error(), tCase.errPrefix) {
+			t.Errorf(`expected to have an error like "%s" but the message was %s\n`, tCase.errPrefix, err)
 		}
 	}
 }
