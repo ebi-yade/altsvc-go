@@ -37,25 +37,25 @@ func Parse(s string) ([]Service, error) {
 		params := strings.Split(svcString, ";")
 		for j, kv := range params {
 			rawKV := strings.TrimSpace(kv)
-			tok := strings.SplitN(rawKV, "=", 2)
-			if len(tok) != 2 {
+			k, v, ok := strings.Cut(rawKV, "=")
+			if !ok {
 				if rawKV == "" && j > 0 && j == len(params)-1 && i == len(services)-1 {
 					// Note: assume the only trailing ";" is legal if the ";" does not have a valid parameter at the back
 					break
 				}
 				return nil, fmt.Errorf("invalid parameter: %s", kv)
 			}
-			switch tok[0] {
+			switch k {
 			case "ma":
-				ma, err := strconv.Atoi(tok[1])
+				ma, err := strconv.Atoi(v)
 				if err != nil {
-					return nil, fmt.Errorf("invalid value of 'ma': %s", tok[1])
+					return nil, fmt.Errorf("invalid value of 'ma': %s", v)
 				}
 				svc.MaxAge = ma
 			case "persist":
-				persist, err := strconv.Atoi(tok[1])
+				persist, err := strconv.Atoi(v)
 				if err != nil {
-					return nil, fmt.Errorf("invalid value of 'persist': %s", tok[1])
+					return nil, fmt.Errorf("invalid value of 'persist': %s", v)
 				}
 
 				// This specification only defines a single value for "persist".
@@ -67,17 +67,17 @@ func Parse(s string) ([]Service, error) {
 				svc.Persist = 1
 
 			default:
-				rawValue, err := strconv.Unquote(tok[1])
+				rawValue, err := strconv.Unquote(v)
 				if err != nil {
-					return nil, fmt.Errorf("cannot unquote the value of 'alt-authority': %s", tok[1])
+					return nil, fmt.Errorf("cannot unquote the value of 'alt-authority': %s", v)
 				}
-				addr := strings.SplitN(rawValue, ":", 2)
-				if len(addr) != 2 {
-					return nil, fmt.Errorf("invalid value of 'alt-authority': %s", tok[1])
+				h, p, ok := strings.Cut(rawValue, ":")
+				if !ok {
+					return nil, fmt.Errorf("invalid value of 'alt-authority': %s", v)
 				}
-				svc.ProtocolID = tok[0]
-				svc.AltAuthority.Host = addr[0]
-				svc.AltAuthority.Port = addr[1]
+				svc.ProtocolID = k
+				svc.AltAuthority.Host = h
+				svc.AltAuthority.Port = p
 			}
 		}
 		ret = append(ret, svc)
